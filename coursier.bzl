@@ -24,6 +24,7 @@ load(
     "COURSIER_CLI_SHA256",
     "JQ_VERSIONS",
 )
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "read_netrc")
 
 _BUILD = """
 package(default_visibility = ["//visibility:{visibility}"])
@@ -252,15 +253,36 @@ def get_netrc_lines_from_entries(netrc_entries):
                 netrc_lines.append("password {}".format(password))
     return netrc_lines
 
-def get_home_netrc_contents(repository_ctx):
+def get_home_netrc_filename(repository_ctx):
     # Copied with a ctx -> repository_ctx rename from tools/build_defs/repo/http.bzl's _get_auth.
     # Need to keep updated with improvements in source since we cannot load private methods.
     if "HOME" in repository_ctx.os.environ:
         if not repository_ctx.os.name.startswith("windows"):
             netrcfile = "%s/.netrc" % (repository_ctx.os.environ["HOME"],)
             if _is_file(repository_ctx, netrcfile):
-                return repository_ctx.read(netrcfile)
-    return ""
+                return netrcfile
+    return None
+
+def get_home_netrc_contents(repository_ctx):
+    netrc_file = get_home_netrc_filename(repository_ctx)
+    if netrc_file == None:
+        return ""
+    else:
+        return repository_ctx.read(netrc_file)
+
+def generate_coursier_credentials_from_netrc(parsed_netrc):
+    """The function accepts a dict, result of calling the `read_netrc` function.
+    It generate a list of credentials, one item per machine.
+    """
+    coursier_credentials = []
+    for host, params in parsed_netrc.items():
+        if "login" in params and "password" in params:
+            coursier_credentials += ["{} {}:{}".format(
+                host,
+                params["login"],
+                params["password"],
+            )]
+    return coursier_credentials
 
 def _get_jq_http_files():
     '''Returns repository targets for the `jq` dependency that `pin.sh` needs.'''
@@ -635,6 +657,13 @@ def make_coursier_dep_tree(
         # https://github.com/bazelbuild/rules_jvm_external/issues/301
         # https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
         environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
+
+    coursier_credentials = []
+    netrc_file = get_home_netrc_filename(repository_ctx)
+    if netrc_file != None:
+        parsed_netrc = read_netrc(repository_ctx, netrc_file)
+        for c in generate_coursier_credentials_from_netrc(parsed_netrc):
+            cmd.extend(["--credentials", c])
 
     repository_ctx.report_progress(
         "%sResolving and fetching the transitive closure of %s artifact(s).." % (
