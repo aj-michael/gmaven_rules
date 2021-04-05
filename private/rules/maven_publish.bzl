@@ -11,7 +11,7 @@ MavenPublishInfo = provider(
 _TEMPLATE = """#!/usr/bin/env bash
 
 echo "Uploading {coordinates} to {maven_repo}"
-./uploader {maven_repo} {gpg_sign} {user} {password} {coordinates} pom.xml artifact.jar source.jar doc.jar
+./uploader {maven_repo} {gpg_sign} {user} {password} {coordinates} "{pom_xml}" "{artifact_jar}" "{source_jar}" "{doc_jar}"
 """
 
 def _maven_publish_impl(ctx):
@@ -31,6 +31,10 @@ def _maven_publish_impl(ctx):
             maven_repo = maven_repo,
             password = password,
             user = user,
+            pom_xml = ctx.file.pom.short_path,
+            artifact_jar = ctx.file.artifact_jar.short_path,
+            source_jar = ctx.file.source_jar.short_path,
+            doc_jar = ctx.file.javadocs.short_path,
         ),
     )
 
@@ -40,12 +44,9 @@ def _maven_publish_impl(ctx):
             executable = executable,
             runfiles = ctx.runfiles(
                 symlinks = {
-                    "artifact.jar": ctx.file.artifact_jar,
-                    "doc.jar": ctx.file.javadocs,
-                    "pom.xml": ctx.file.pom,
-                    "source.jar": ctx.file.source_jar,
                     "uploader": ctx.executable._uploader,
                 },
+                files = [ctx.file.pom, ctx.file.artifact_jar, ctx.file.source_jar, ctx.file.javadocs],
                 collect_data = True,
             ).merge(ctx.attr._uploader[DefaultInfo].data_runfiles),
         ),
