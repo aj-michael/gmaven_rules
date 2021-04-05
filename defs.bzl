@@ -158,7 +158,10 @@ def maven_install(
 
 def artifact(a, repository_name = DEFAULT_REPOSITORY_NAME):
     artifact_obj = _parse_artifact_str(a) if type(a) == "string" else a
-    return "@%s//:%s" % (repository_name, _escape(artifact_obj["group"] + ":" + artifact_obj["artifact"]))
+    parts = [artifact_obj["group"], artifact_obj["artifact"]]
+    if "classifier" in artifact_obj:
+        parts.append(artifact_obj["classifier"])
+    return "@%s//:%s" % (repository_name, _escape(":".join(parts)))
 
 def maven_artifact(a):
     return artifact(a, repository_name = DEFAULT_REPOSITORY_NAME)
