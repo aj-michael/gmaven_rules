@@ -29,6 +29,9 @@ if "%DIRNAME%" == "" set DIRNAME=.
 set APP_BASE_NAME=%~n0
 set APP_HOME=%DIRNAME%..
 
+@rem Resolve any "." and ".." in APP_HOME to make it shorter.
+for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
+
 @rem Add default JVM options here. You can also use JAVA_OPTS and JETIFIER_STANDALONE_OPTS to pass JVM options to this script.
 set DEFAULT_JVM_OPTS=
 
@@ -79,7 +82,8 @@ set CMD_LINE_ARGS=%*
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\jetifier-standalone.jar;%APP_HOME%\lib\jetifier-processor-1.0.0-beta08.jar;%APP_HOME%\lib\commons-cli-1.3.1.jar;%APP_HOME%\lib\jetifier-core-1.0.0-beta08.jar;%APP_HOME%\lib\asm-util-6.0.jar;%APP_HOME%\lib\asm-commons-6.0.jar;%APP_HOME%\lib\asm-tree-6.0.jar;%APP_HOME%\lib\asm-6.0.jar;%APP_HOME%\lib\jdom2-2.0.6.jar;%APP_HOME%\lib\kotlin-stdlib-1.3.41.jar;%APP_HOME%\lib\gson-2.8.0.jar;%APP_HOME%\lib\kotlin-stdlib-common-1.3.41.jar;%APP_HOME%\lib\annotations-13.0.jar
+set CLASSPATH=%APP_HOME%\lib\jetifier-standalone.jar;%APP_HOME%\lib\jetifier-processor-1.0.0-beta10.jar;%APP_HOME%\lib\commons-cli-1.3.1.jar;%APP_HOME%\lib\jetifier-core-1.0.0-beta10.jar;%APP_HOME%\lib\asm-util-8.0.1.jar;%APP_HOME%\lib\asm-commons-8.0.1.jar;%APP_HOME%\lib\asm-analysis-8.0.1.jar;%APP_HOME%\lib\asm-tree-8.0.1.jar;%APP_HOME%\lib\asm-8.0.1.jar;%APP_HOME%\lib\jdom2-2.0.6.jar;%APP_HOME%\lib\kotlin-stdlib-1.3.71.jar;%APP_HOME%\lib\gson-2.8.0.jar;%APP_HOME%\lib\kotlin-stdlib-common-1.3.71.jar;%APP_HOME%\lib\annotations-13.0.jar
+
 
 @rem Execute jetifier-standalone
 "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %JETIFIER_STANDALONE_OPTS%  -classpath "%CLASSPATH%" com.android.tools.build.jetifier.standalone.Main %CMD_LINE_ARGS%

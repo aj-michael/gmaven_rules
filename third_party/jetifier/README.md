@@ -2,4 +2,4 @@
 
 Downloaded from https://developer.android.com/studio/command-line/jetifier.
 
-SHA256: `8ef877e8245f8dcf8f379b2cdc4958ba714147eb8d559d8334a1840e137e5a2c`
+SHA256: `38186db9c9d1b745890b3d35c0667da1cac146ceb3c26aae5bf0802119472c1b`

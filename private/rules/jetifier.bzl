@@ -12,6 +12,7 @@ def _jetify_impl(ctx):
             jetify_args.add("-l", "error")
             jetify_args.add("-o", jetified_outfile)
             jetify_args.add("-i", artifact)
+            jetify_args.add("-timestampsPolicy", "keepPrevious")
             ctx.actions.run(
                 mnemonic = "Jetify",
                 inputs = [artifact],
