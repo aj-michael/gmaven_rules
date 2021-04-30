@@ -26,6 +26,9 @@ def _explode_coordinates(coords):
     if len(parts) == 4:
         # Assume a buildr coordinate: groupId:artifactId:type:version
         return (parts[0], parts[1], parts[3], parts[2])
+    if len(parts) == 5:
+        # Assume groupId:artifactId:type:classifier:version
+        return (parts[0], parts[1], parts[4], parts[2], parts[3])
 
     fail("Unparsed: %s" % coords)
 
