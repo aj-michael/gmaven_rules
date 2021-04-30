@@ -17,11 +17,14 @@ This file contains parsing functions to turn a JSON-like dependency tree
 into target declarations (jvm_import) for the final @maven//:BUILD file.
 """
 
-load("//:private/coursier_utilities.bzl", "escape", "get_classifier", "get_packaging", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version")
+load("//:private/coursier_utilities.bzl", "escape", "get_classifier", "get_packaging", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version", "is_maven_local_path")
 
 JETIFY_INCLUDE_LIST_JETIFY_ALL = ["*"]
 
 def _genrule_copy_artifact_from_http_file(artifact):
+    # skip artifacts without any urls (ie: maven local artifacts)
+    if artifact.get("url") == None:
+        return ""
     http_file_repository = escape(artifact["coord"])
     return "\n".join([
         "genrule(",
@@ -46,7 +49,7 @@ def _deduplicate_list(items):
 # tree.
 #
 # Made function public for testing.
-def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_artifacts, testonly_artifacts, override_targets):
+def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_artifacts, testonly_artifacts, override_targets, skip_maven_local_dependencies):
     # The list of java_import/aar_import declaration strings to be joined at the end
     all_imports = []
 
@@ -90,6 +93,9 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
+        # Skip the maven local dependencies if requested
+        if skip_maven_local_dependencies and is_maven_local_path(artifact_path):
+            continue        
         simple_coord = strip_packaging_and_classifier_and_version(artifact["coord"])
         target_label = escape(simple_coord)
         alias_visibility = ""

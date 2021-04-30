@@ -75,3 +75,7 @@ def escape(string):
     for char in [".", "-", ":", "/", "+"]:
         string = string.replace(char, "_")
     return string.replace("[", "").replace("]", "").split(",")[0]
+
+def is_maven_local_path(absolute_path):
+    # Return whether or not the provided absolute path corresponds to maven local
+    return absolute_path and len(absolute_path.split(".m2/repository")) == 2 
