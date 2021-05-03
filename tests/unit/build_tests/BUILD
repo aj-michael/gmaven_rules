@@ -84,3 +84,10 @@ build_test(
         "@maven_install_in_custom_location//:com_google_guava_guava",
     ],
 )
+
+build_test(
+    name = "ivy_repository",
+    targets = [
+        "@ivy_repo//:com_typesafe_sbt_sbt_native_packager"
+    ],
+)

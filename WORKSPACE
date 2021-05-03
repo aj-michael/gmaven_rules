@@ -65,6 +65,17 @@ load("//:defs.bzl", "maven_install")
 load("//:specs.bzl", "maven")
 
 maven_install(
+    name = "ivy_repo",
+    artifacts = [
+        "com.typesafe.sbt:sbt-native-packager;sbtVersion=1.0;scalaVersion=2.12:1.8.1"
+    ],
+    repositories = [
+        "ivy:https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/[organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]",
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+maven_install(
     name = "outdated",
     artifacts = [
         "org.apache.maven:maven-artifact:3.6.3",

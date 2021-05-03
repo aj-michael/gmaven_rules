@@ -896,11 +896,12 @@ def _coursier_fetch_impl(repository_ctx):
         #
         # TODO(https://github.com/bazelbuild/rules_jvm_external/issues/186): Make this work with
         # basic auth.
-        repository_urls = [r["repo_url"].rstrip("/") for r in repositories]
+        repository_urls = [r["repo_url"].rstrip("/") for r in repositories if not r["repo_url"].startswith("ivy:")]
         primary_artifact_path = infer_artifact_path_from_primary_and_repos(primary_url, repository_urls)
 
-        mirror_urls = [url + "/" + primary_artifact_path for url in repository_urls]
-        artifact.update({"mirror_urls": mirror_urls})
+        if primary_artifact_path:
+            mirror_urls = [url + "/" + primary_artifact_path for url in repository_urls]
+            artifact.update({"mirror_urls": mirror_urls})
 
         files_to_hash.append(repository_ctx.path(artifact["file"]))
 
