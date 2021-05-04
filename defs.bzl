@@ -39,6 +39,7 @@ def maven_install(
         resolve_timeout = 600,
         jetify = False,
         jetify_include_list = JETIFY_INCLUDE_LIST_JETIFY_ALL,
+        java_binary = None,
         additional_netrc_lines = [],
         fail_if_repin_required = False,
         use_starlark_android_rules = False,
@@ -77,6 +78,7 @@ def maven_install(
       resolve_timeout: The execution timeout of resolving and fetching artifacts.
       jetify: Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.
       jetify_include_list: List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.
+      java_binary: Label pointing to a java binary if you want to provide a custom installation (default: None)
       additional_netrc_lines: Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).
       fail_if_repin_required: Whether to fail the build if the required maven artifacts have been changed but not repinned. Requires the `maven_install_json` to have been set.
       use_starlark_android_rules: Whether to use the native or Starlark version
@@ -134,6 +136,7 @@ def maven_install(
         resolve_timeout = resolve_timeout,
         jetify = jetify,
         jetify_include_list = jetify_include_list,
+        java_binary = java_binary,
         use_starlark_android_rules = use_starlark_android_rules,
         aar_import_bzl_label = aar_import_bzl_label,
     )
