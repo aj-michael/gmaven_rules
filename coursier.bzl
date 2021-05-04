@@ -337,7 +337,8 @@ def _fail_if_repin_required(repository_ctx):
     if not repository_ctx.attr.fail_if_repin_required:
         return False
 
-    return "REPIN" not in repository_ctx.os.environ.keys()
+    env_var_names = repository_ctx.os.environ.keys()
+    return "RULES_JVM_EXTERNAL_REPIN" not in env_var_names and "REPIN" not in env_var_names:
 
 def _pinned_coursier_fetch_impl(repository_ctx):
     if not repository_ctx.attr.maven_install_json:

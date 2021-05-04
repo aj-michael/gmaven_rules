@@ -221,7 +221,11 @@ a build error, causing the build to fail. When this attribute is set,
 it is possible to update the `maven_install.json` file using:
 
 ```shell
-$ REPIN=1 bazel run @unpinned_maven//:pin
+# To repin everything:
+REPIN=1 bazel run @unpinned_maven//:pin
+
+# To only repin rules_jvm_external:
+RULES_JVM_EXTERNAL_REPIN=1 bazel run @unpinned_maven//:pin
 ```
 
 Alternatively, it is also possible to modify the
