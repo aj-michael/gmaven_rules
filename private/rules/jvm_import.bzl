@@ -14,23 +14,26 @@ def _jvm_import_impl(ctx):
         fail("Please only specify one jar to import in the jars attribute.")
 
     injar = ctx.files.jars[0]
-    outjar = ctx.actions.declare_file("processed_" + injar.basename, sibling = injar)
-    args = ctx.actions.args()
-    args.add_all(["--source", injar, "--output", outjar])
-    args.add_all(["--manifest-entry", "Target-Label:{target_label}".format(target_label = ctx.label)])
-    ctx.actions.run(
-        executable = ctx.executable._add_jar_manifest_entry,
-        arguments = [args],
-        inputs = [injar],
-        outputs = [outjar],
-        mnemonic = "StampJarManifest",
-        progress_message = "Stamping the manifest of %s" % ctx.label,
-    )
+    if ctx.attr._stamp_manifest[StampManifestProvider].stamp_enabled:
+        outjar = ctx.actions.declare_file("processed_" + injar.basename, sibling = injar)
+        args = ctx.actions.args()
+        args.add_all(["--source", injar, "--output", outjar])
+        args.add_all(["--manifest-entry", "Target-Label:{target_label}".format(target_label = ctx.label)])
+        ctx.actions.run(
+            executable = ctx.executable._add_jar_manifest_entry,
+            arguments = [args],
+            inputs = [injar],
+            outputs = [outjar],
+            mnemonic = "StampJarManifest",
+            progress_message = "Stamping the manifest of %s" % ctx.label,
+        )
+    else:
+        outjar = injar
 
     compilejar = ctx.actions.declare_file("header_" + injar.basename, sibling = injar)
     args = ctx.actions.args()
     args.add_all(["--source", outjar, "--output", compilejar])
-    # We need to remove the `Class-Path` entry since bazel 4 forces `javac`
+    # We need to remove the `Class-Path` entry since bazel 4.0.0 forces `javac`
     # to run `-Xlint:path` no matter what other flags are passed. Bazel
     # manages the classpath for us, so the `Class-Path` manifest entry isn't
     # needed. Worse, if it's there and the jars listed in it aren't found,
@@ -45,9 +48,6 @@ def _jvm_import_impl(ctx):
         mnemonic = "CreateCompileJar",
         progress_message = "Creating compile jar for %s" % ctx.label,
     )
-
-    if not ctx.attr._stamp_manifest[StampManifestProvider].stamp_enabled:
-        outjar = injar
 
     return [
         DefaultInfo(
